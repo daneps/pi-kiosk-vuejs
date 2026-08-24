@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Pi Kiosk
+Comment=Launch the local kiosk dashboard after the graphical session starts
+Exec=sh -lc "$HOME/pi-kiosk-vuejs/scripts/pi-kiosk-browser.sh"
+Terminal=false
+X-GNOME-Autostart-enabled=true

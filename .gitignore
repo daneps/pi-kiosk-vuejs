@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+src/kiosk.config.ts
+dist/
+node_modules/
+.pnpm-store/
+backend/data/photos/
+.idea/
+*.iml
+.DS_Store
