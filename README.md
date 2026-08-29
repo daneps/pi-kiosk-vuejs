@@ -30,35 +30,45 @@ PHOTO_SYNC_SOURCE='user@photo-host:/path/to/photos/' pnpm photos:sync
 
 ## Deploying to the Pi
 
-Build, copy the app, refresh dependencies, restart the API, and relaunch the kiosk browser with one command. Set the target first:
+Build, copy the app, refresh dependencies, restart the API, and relaunch the kiosk browser with one command. Copy `.pi-kiosk.env.example` to the untracked `.pi-kiosk.env` and set the target, app directory, and optional SSH key there:
 
 ```bash
-PI_HOST='pi@raspberrypi.local' npm run deploy:pi
-```
-
-To use a non-default app directory or a particular SSH key, set `PI_APP_DIR` and `PI_SSH_KEY`:
-
-```bash
-PI_HOST='pi@raspberrypi.local' PI_APP_DIR='/home/pi/pi-kiosk-vuejs' PI_SSH_KEY="$HOME/.ssh/pi-kiosk" npm run deploy:pi
+cp .pi-kiosk.env.example .pi-kiosk.env
+npm run deploy:pi
 ```
 
 The deploy script builds the SPA, mirrors the application to the Pi (excluding source photos, Git metadata, environment files, and dependencies), installs production dependencies, reloads the `pi-kiosk-api` PM2 process, and relaunches Chromium. The kiosk serves only the optimized photo files and picks a new photo each time the carousel reaches that page.
+
+## Pi diagnostics
+
+Copy `.pi-kiosk.env.example` to the untracked `.pi-kiosk.env` and set the Pi SSH connection values. The maintenance commands then reuse that local configuration:
+
+```sh
+npm run pi:diagnose         # System, cron, API, Chromium, display mode, and HDMI status
+npm run pi:diagnose -- --logs
+npm run pi:screenshot       # Saves a display capture under /private/tmp by default
+npm run pi:restart-browser  # Relaunches Chromium without clearing its profile
+npm run pi:watchdog:install # Checks the API and Chromium every two minutes; restarts Chromium if needed
+npm run pi:tv-schedule:install # Installs the configured, logged CEC TV schedule
+```
+
+The watchdog has a five-minute restart cooldown and records its activity in `/tmp/pi-kiosk-watchdog.log` and the system journal. It checks that the local API responds, Chromium is running, and Chromium's local debugging endpoint responds. It does not clear browser data or restart the Pi.
 
 ## TV schedule and Pi power
 
 The Raspberry Pi 3 is powered from the Roku TV's USB utility port. That USB port remains powered while the TV is in standby, so the Pi stays online and can send CEC commands at the next scheduled start time.
 
-The kiosk user's crontab on the Pi contains this daily schedule, using the Pi's local Eastern Time timezone (including daylight-saving changes):
+Install or repair the kiosk user's CEC schedule with `npm run pi:tv-schedule:install`. It uses the Pi's local Eastern Time timezone (including daylight-saving changes):
 
 ```cron
 # pi-kiosk-tv-schedule
-30 6 * * * /usr/bin/cec-ctl --to 0 --image-view-on && /bin/sleep 2 && /usr/bin/cec-ctl --active-source phys-addr=1.0.0.0 # pi-kiosk-tv-schedule
-30 8 * * * /usr/bin/cec-ctl --to 0 --standby # pi-kiosk-tv-schedule
-0 17 * * * /usr/bin/cec-ctl --to 0 --image-view-on && /bin/sleep 2 && /usr/bin/cec-ctl --active-source phys-addr=1.0.0.0 # pi-kiosk-tv-schedule
-0 21 * * * /usr/bin/cec-ctl --to 0 --standby # pi-kiosk-tv-schedule
+30 6 * * * /home/pi/pi-kiosk-vuejs/scripts/pi-kiosk-tv.sh on # pi-kiosk-tv-schedule
+30 8 * * * /home/pi/pi-kiosk-vuejs/scripts/pi-kiosk-tv.sh off # pi-kiosk-tv-schedule
+0 17 * * * /home/pi/pi-kiosk-vuejs/scripts/pi-kiosk-tv.sh on # pi-kiosk-tv-schedule
+0 21 * * * /home/pi/pi-kiosk-vuejs/scripts/pi-kiosk-tv.sh off # pi-kiosk-tv-schedule
 ```
 
-This turns the TV on and selects HDMI 1 at 6:30 AM and 5:00 PM, then puts it into standby at 8:30 AM and 9:00 PM. Check the installed schedule with `crontab -l` while logged in as the kiosk user.
+This configures the Pi as a CEC playback device, turns the TV on and selects HDMI 1 at 6:30 AM and 5:00 PM, then puts it into standby at 8:30 AM and 9:00 PM. Results are logged to `/tmp/pi-kiosk-cec.log`; check the installed schedule with `crontab -l` while logged in as the kiosk user.
 
 Do not halt or cut power to the Pi between these windows: the Pi 3 has no built-in timed wake-from-sleep capability, and it must remain running for cron to wake the TV via CEC. The CEC standby schedule is the safe low-power approach; the TV is off while the Pi remains idle. Meaningfully powering down the Pi would require external timed-wake hardware (for example, an RTC/power controller) and a safe shutdown before power is removed.
 

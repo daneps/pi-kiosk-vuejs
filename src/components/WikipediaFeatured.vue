@@ -41,7 +41,7 @@ onBeforeUnmount(() => { if (refreshTimer) clearInterval(refreshTimer) })
         <CardContent class="h-full p-0">
           <img v-if="featured.pictureOfTheDay?.image" :src="featured.pictureOfTheDay.image" :alt="featured.pictureOfTheDay.title" class="h-full w-full object-cover" loading="lazy" />
           <div v-else class="flex h-full items-center justify-center text-2xl text-muted-foreground">Picture of the day is unavailable.</div>
-          <div v-if="featured.pictureOfTheDay" class="absolute inset-x-0 bottom-0 bg-black/75 p-5">
+          <div v-if="featured.pictureOfTheDay" class="absolute inset-x-0 bottom-0 bg-black/75 p-5 text-white">
             <p class="flex items-center gap-2 text-2xl font-semibold"><Image class="size-7" />Picture of the day</p>
             <p class="mt-1 text-3xl font-bold leading-tight">{{ featured.pictureOfTheDay.title }}</p>
             <p v-if="featured.pictureOfTheDay.description" class="mt-2 line-clamp-2 text-xl leading-snug text-white/85">{{ featured.pictureOfTheDay.description }}</p>
@@ -51,11 +51,11 @@ onBeforeUnmount(() => { if (refreshTimer) clearInterval(refreshTimer) })
 
       <Card class="flex min-h-0 flex-col overflow-hidden">
           <CardHeader class="pb-2">
-            <CardTitle class="flex items-center gap-2 text-4xl"><CalendarDays class="size-9 text-amber-400" />On this day</CardTitle>
+            <CardTitle class="flex items-center gap-2 text-4xl"><CalendarDays class="size-9 text-kiosk-orange dark:text-amber-400" />On this day</CardTitle>
           </CardHeader>
           <CardContent v-if="featured.onThisDay.length" class="grid min-h-0 flex-1 grid-rows-2 gap-4">
             <article v-for="event in featured.onThisDay" :key="`${event.year}-${event.text}`" class="grid min-h-0 grid-cols-[auto_1fr] gap-4 overflow-hidden rounded-lg bg-muted/50 p-4">
-              <span class="text-4xl font-bold text-amber-300">{{ event.year }}</span>
+              <span class="text-4xl font-bold text-kiosk-orange dark:text-amber-300">{{ event.year }}</span>
               <p class="min-w-0 line-clamp-5 text-3xl leading-snug">{{ event.text }}</p>
             </article>
           </CardContent>

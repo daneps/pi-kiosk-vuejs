@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+.pi-kiosk.env
 *.pem
 *.key
 

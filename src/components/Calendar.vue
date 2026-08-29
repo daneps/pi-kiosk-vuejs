@@ -69,13 +69,13 @@ watch(() => [currentMonth.value.format('YYYY-MM'), JSON.stringify(props.config.s
           <div class="flex min-w-0 items-center gap-1">
             <span :class="['text-2xl font-medium w-9 h-9 flex items-center justify-center shrink-0', day.isToday && 'bg-primary text-primary-foreground rounded-full font-semibold']">{{ day.dayNumber }}</span>
             <div v-if="eventsForDay(day.dateString)[0]" class="min-w-0 flex-1">
-              <div class="truncate rounded px-1 py-px text-xl leading-tight text-white" :style="{ backgroundColor: eventsForDay(day.dateString)[0].source.color }" :title="`${eventsForDay(day.dateString)[0].source.name}: ${eventsForDay(day.dateString)[0].title}`">
+              <div class="truncate rounded px-1 py-px text-xl leading-tight text-black" :style="{ backgroundColor: eventsForDay(day.dateString)[0].source.color }" :title="`${eventsForDay(day.dateString)[0].source.name}: ${eventsForDay(day.dateString)[0].title}`">
                 {{ formatEventTime(eventsForDay(day.dateString)[0]) }}{{ eventsForDay(day.dateString)[0].title }}
               </div>
             </div>
           </div>
           <div class="mt-0.5 flex-1 space-y-0.5 overflow-hidden">
-            <div v-for="event in eventsForDay(day.dateString).slice(1)" :key="event.id" class="truncate rounded px-1 py-px text-xl leading-tight text-white" :style="{ backgroundColor: event.source.color }" :title="`${event.source.name}: ${event.title}`">
+            <div v-for="event in eventsForDay(day.dateString).slice(1)" :key="event.id" class="truncate rounded px-1 py-px text-xl leading-tight text-black" :style="{ backgroundColor: event.source.color }" :title="`${event.source.name}: ${event.title}`">
               {{ formatEventTime(event) }}{{ event.title }}
             </div>
           </div>

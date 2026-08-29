@@ -9,6 +9,11 @@
     "start": "NODE_ENV=production node server.js",
     "photos:sync": "node scripts/sync-photos.mjs",
     "deploy:pi": "bash scripts/deploy-pi.sh",
+    "pi:diagnose": "bash scripts/pi-diagnose.sh",
+    "pi:screenshot": "bash scripts/pi-screenshot.sh",
+    "pi:restart-browser": "bash scripts/pi-restart-browser.sh",
+    "pi:watchdog:install": "bash scripts/pi-watchdog-install.sh",
+    "pi:tv-schedule:install": "bash scripts/pi-tv-schedule-install.sh",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
   },

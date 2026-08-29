@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Optional local-only connection settings; command-line environment variables
+# can still override these values.
+if [[ -f "$project_dir/.pi-kiosk.env" ]]; then
+  # shellcheck source=/dev/null
+  source "$project_dir/.pi-kiosk.env"
+fi
+
 # Required: PI_HOST='pi@raspberrypi.local' npm run deploy:pi
-pi_host="${PI_HOST:?Set PI_HOST to the kiosk's SSH target.}"
+pi_host="${PI_HOST:?Set PI_HOST to the kiosk SSH target.}"
 pi_user="${PI_USER:-${pi_host%@*}}"
 pi_app_dir="${PI_APP_DIR:-/home/$pi_user/pi-kiosk-vuejs}"
 pi_user_home="${PI_USER_HOME:-/home/$pi_user}"
@@ -28,6 +36,6 @@ rsync -az --delete \
   -e "$rsync_ssh" \
   ./ "$pi_host:$pi_app_dir/"
 
-"${ssh_command[@]}" "$pi_host" "cd '$pi_app_dir' && chmod 755 scripts/pi-kiosk-browser.sh && npm install --omit=dev && (pm2 reload pi-kiosk-api --update-env || pm2 start ecosystem.config.cjs --only pi-kiosk-api) && pm2 save && pkill -x chromium || true; sleep 2; nohup env DISPLAY=:0 XAUTHORITY='$pi_user_home/.Xauthority' '$pi_app_dir/scripts/pi-kiosk-browser.sh' </dev/null >/tmp/pi-kiosk-browser.log 2>&1 &"
+"${ssh_command[@]}" "$pi_host" "cd '$pi_app_dir' && chmod 755 scripts/pi-kiosk-browser.sh scripts/pi-kiosk-watchdog.sh scripts/pi-kiosk-tv.sh && npm install --omit=dev && (pm2 reload pi-kiosk-api --update-env || pm2 start ecosystem.config.cjs --only pi-kiosk-api) && pm2 save && pkill -x chromium || true; sleep 2; nohup env DISPLAY=:0 XAUTHORITY='$pi_user_home/.Xauthority' '$pi_app_dir/scripts/pi-kiosk-browser.sh' </dev/null >/tmp/pi-kiosk-browser.log 2>&1 &"
 
 echo "Deployed and refreshed $pi_host."
